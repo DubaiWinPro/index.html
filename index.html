@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>DUBAI ELITE | LUXURY</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;600;900&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary: #00f2ff; --gold: #ffd700; --bg: #010204; --card: rgba(22, 26, 38, 0.98); --red: #ff3b30; --green: #34c759; --violet: #af52de; --border: rgba(255, 215, 0, 0.15); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); color: #fff; height: 100vh; overflow: hidden; background-image: radial-gradient(circle at top, #0d1a33, #010204); }
+        .hidden { display: none !important; }
+        .glass { background: var(--card); border: 1px solid var(--border); backdrop-filter: blur(25px); border-radius: 15px; padding: 15px; margin: 10px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        input, select { width: 100%; padding: 16px; background: #000; border: 1px solid #222; color: #fff; border-radius: 12px; margin-bottom: 12px; font-weight: 600; }
+        .timer-8k { font-size: 4rem; font-weight: 900; font-family: 'JetBrains Mono'; text-align: center; color: #fff; line-height: 1; margin: 10px 0; letter-spacing: -2px; text-shadow: 0 0 20px rgba(0,242,255,0.4); }
+        .market-feed { height: 160px; overflow-y: hidden; margin-top: 10px; border-radius: 15px; position: relative; }
+        .market-row { 
+            display: flex; justify-content: space-between; padding: 12px 20px; 
+            margin: 5px 10px; border-radius: 10px;
+            background: linear-gradient(90deg, rgba(255,215,0,0.05), rgba(255,215,0,0.01));
+            border-left: 3px solid var(--gold);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            animation: slideIn 0.5s ease-out; font-size: 13px; font-weight: 600;
+        }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .btn-vip { width: 100%; padding: 18px; border-radius: 12px; border: none; background: linear-gradient(135deg, #ffd700, #b8860b); color: #000; font-weight: 900; cursor: pointer; text-transform: uppercase; box-shadow: 0 5px 15px rgba(212,175,55,0.3); }
+        .btn-bet { flex: 1; padding: 15px; border-radius: 10px; border: none; font-weight: 900; color: #fff; cursor: pointer; transition: 0.2s; }
+        .btn-bet:active { transform: scale(0.9); }
+        .nav { position: fixed; bottom: 0; width: 100%; max-width: 500px; display: flex; background: rgba(0,0,0,0.98); padding: 15px 0 35px; border-top: 1px solid #222; z-index: 1000; }
+        .nav-item { flex: 1; text-align: center; font-size: 10px; font-weight: 900; color: #555; transition: 0.3s; }
+        .nav-item.active { color: var(--gold); text-shadow: 0 0 10px var(--gold); }
+        .history-row { background: rgba(255,255,255,0.03); margin-bottom: 6px; padding: 12px; border-radius: 10px; font-size: 11px; display: flex; flex-direction: column; border: 1px solid rgba(255,255,255,0.05); }
+    </style>
+</head>
+<body onclick="startMusic()">
+
+<div id="toast" style="position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--gold); color:#000; padding:12px 30px; border-radius:50px; z-index:9999; display:none; font-weight:900; box-shadow: 0 0 20px var(--gold);"></div>
+
+<div style="max-width:500px; margin:0 auto; height:100vh; position:relative;">
+    
+    <div id="scr-auth" style="padding:100px 30px; text-align:center; display: block;">
+        <h1 style="font-size:3.5rem; color:var(--gold); font-weight:900; letter-spacing: -2px; text-shadow: 0 0 30px rgba(255,215,0,0.3);">DUBAI<span style="color:#fff">ELITE</span></h1>
+        <div class="glass" style="margin-top:40px; border: 1px solid rgba(255,215,0,0.3);">
+            <input type="text" id="auth-u" placeholder="MOBILE NUMBER">
+            <input type="password" id="auth-p" placeholder="PASSWORD">
+            <button class="btn-vip" onclick="handleAuth()">LOGIN TO LOUNGE</button>
+            <p id="auth-hint" onclick="toggleSignup()" style="font-size:12px; color:var(--primary); margin-top:20px; cursor:pointer; text-transform: uppercase; font-weight: 600;">New member? Register</p>
+        </div>
+    </div>
+
+    <div id="scr-app" class="hidden">
+        <div id="top-bar" style="padding:15px; display:flex; justify-content:space-between; align-items:center; border-bottom: 1px solid #111;">
+            <div><p style="font-size:9px; color:#555;">ID</p><b id="me-id" style="color:var(--gold); font-size:14px;">---</b></div>
+            <div style="text-align:right;"><p style="font-size:9px; color:#555;">CREDITS</p><b style="font-size:1.4rem; color: var(--gold);">₹<span id="me-bal">0.00</span></b></div>
+        </div>
+
+        <div id="tab-game" class="tab-content">
+            <div class="glass" style="text-align:center;">
+                <p class="period-id" id="p-label">PERIOD: ---</p>
+                <div class="timer-8k" id="timer">00:00</div>
+                <div style="display:flex; gap:10px; margin:15px 0;">
+                    <button class="btn-bet" style="background:var(--red); box-shadow: 0 0 15px rgba(255,59,48,0.3);" onclick="pick('red')">RED</button>
+                    <button class="btn-bet" style="background:var(--violet); box-shadow: 0 0 15px rgba(175,82,222,0.3);" onclick="pick('violet')">VIOLET</button>
+                    <button class="btn-bet" style="background:var(--green); box-shadow: 0 0 15px rgba(52,199,89,0.3);" onclick="pick('green')">GREEN</button>
+                </div>
+                <input type="number" id="bet-amt" placeholder="ENTER STAKE ₹" style="text-align:center; font-size:1.2rem; border-color: var(--gold);">
+                <button class="btn-vip" onclick="placeBet()">PLACE BET</button>
+            </div>
+            <div style="padding:5px 20px; font-size:11px; font-weight: 900; color:var(--gold); display:flex; justify-content:space-between; text-transform: uppercase;">
+                <span>Live Dubai Market</span>
+                <span style="color:var(--green)">● <span id="active-count">0</span> Online</span>
+            </div>
+            <div class="market-feed" id="market-feed"></div>
+        </div>
+
+        <div id="tab-ghost" class="tab-content hidden" style="padding:10px; height:85vh; overflow-y:auto;">
+            <div class="glass" style="border: 1px solid var(--gold); display: flex; justify-content: space-around; text-align: center;">
+                <div><p style="font-size:10px; color:#888;">TOTAL USERS</p><b id="adm-total-u" style="color:var(--gold); font-size:18px;">0</b></div>
+                <div style="width:1px; background:#222;"></div>
+                <div><p style="font-size:10px; color:#888;">ACTIVE BETS</p><b id="adm-active-b" style="color:var(--primary); font-size:18px;">0</b></div>
+            </div>
+            <div class="glass" style="border: 1px solid var(--primary);">
+                <h3 style="color:var(--primary); margin-bottom:10px;">USER MANAGEMENT</h3>
+                <input type="text" id="adm-user-search" placeholder="Search Mobile No.">
+                <div id="user-info-display" style="font-size:14px; margin-bottom:15px; color:#fff; font-weight: 600;">Enter number to view balance...</div>
+                <input type="number" id="adm-user-amt" placeholder="Amount to Add/Sub">
+                <button class="btn-vip" onclick="editBalance()" style="background:var(--primary);">UPDATE USER</button>
+            </div>
+            <div class="glass">
+                <h3 style="color:var(--gold);">AI CONTROL</h3>
+                <div style="display:flex; justify-content:space-between; font-family:monospace; margin:10px 0; font-size:12px; background: #000; padding: 10px; border-radius: 8px;">
+                    <div style="color:var(--red)">R: ₹<span id="adm-red">0</span></div>
+                    <div style="color:var(--violet)">V: ₹<span id="adm-vio">0</span></div>
+                    <div style="color:var(--green)">G: ₹<span id="adm-gre">0</span></div>
+                </div>
+                <select id="adm-mode">
+                    <option value="auto">NORMAL (RANDOM)</option>
+                    <option value="lowest">PROTECT PROFIT (LOWEST WIN)</option>
+                    <option value="red">FORCE RED</option>
+                    <option value="green">FORCE GREEN</option>
+                </select>
+            </div>
+            <div id="admin-tx-list" style="padding-bottom:100px;"></div>
+        </div>
+
+        <div id="tab-wallet" class="tab-content hidden" style="padding:10px; height:85vh; overflow-y:auto;">
+            <div class="glass">
+                <h4 style="color:var(--gold);">DEPOSIT FUNDS</h4>
+                <p style="font-size:12px; margin: 10px 0;">Transfer to: <b style="color:#fff; font-size: 14px;">apple444@axl</b></p>
+                <input type="number" id="dep-amt" placeholder="Amount">
+                <input type="text" id="dep-utr" placeholder="UTR / Ref Number">
+                <button class="btn-vip" onclick="requestTx('DEP')">DEPOSIT NOW</button>
+            </div>
+            <div class="glass">
+                <h4 style="color:var(--red);">WITHDRAW FUNDS</h4>
+                <input type="number" id="wit-amt" placeholder="Amount">
+                <input type="text" id="wit-upi" placeholder="Your UPI ID">
+                <button class="btn-vip" style="background:var(--red); color:#fff;" onclick="requestTx('WIT')">WITHDRAW NOW</button>
+            </div>
+            <h4 style="margin:20px 10px 10px; color:var(--gold);">WALLET TRANSACTIONS</h4>
+            <div id="wallet-history" style="padding-bottom:120px; margin: 0 10px;"></div>
+        </div>
+
+        <div id="tab-profile" class="tab-content hidden" style="padding:10px;">
+            <div class="glass" style="text-align: center;">
+                <div style="width:70px; height:70px; background:var(--gold); border-radius:50%; margin:0 auto 10px; display:flex; align-items:center; justify-content:center; color:#000; font-size:30px; font-weight:900;">👑</div>
+                <h2 id="prof-u" style="color:var(--gold);">---</h2>
+                <button class="btn-vip" style="background:#222; color:#fff; margin-top:20px; border: 1px solid #444;" onclick="signOut()">SIGN OUT</button>
+            </div>
+            <h4 style="margin:20px 10px 10px;">MY BET HISTORY</h4>
+            <div id="bet-history" style="padding-bottom:120px; margin: 0 10px;"></div>
+        </div>
+
+        <div class="nav" id="main-nav">
+            <div class="nav-item active" onclick="nav('game', this)">LOBBY</div>
+            <div class="nav-item" onclick="nav('wallet', this)">WALLET</div>
+            <div class="nav-item" onclick="nav('profile', this)">HISTORY</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const bgm = new Audio('https://www.soundjay.com/misc/sounds/dream-01.mp3'); bgm.loop = true; bgm.volume = 0.4;
+    const snd = { tap: new Audio('https://www.soundjay.com/buttons/sounds/button-16.mp3'), win: new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3') };
+    let cur = localStorage.getItem('U_AUTH') || null; 
+    let db = JSON.parse(localStorage.getItem('U_DB')) || {};
+    let txs = JSON.parse(localStorage.getItem('U_TXS')) || [];
+    let history = JSON.parse(localStorage.getItem('U_HIST')) || [];
+    let isSignup = false, selected = null, musicStarted = false;
+
+    window.onload = () => { if(cur) launch(); };
+    function startMusic() { if(!musicStarted) { bgm.play().catch(() => {}); musicStarted = true; } }
+
+    function handleAuth() {
+        const u = document.getElementById('auth-u').value.trim();
+        const p = document.getElementById('auth-p').value.trim();
+        if(u === 'CR7' && p === 'CR7') { cur = 'MASTER_CONTROL'; } 
+        else {
+            if(u.length !== 10) return toast("Invalid 10-Digit Mobile");
+            if(isSignup) { if(db[u]) return toast("Account Exists"); db[u] = {p:p, bal:100}; cur = u; }
+            else { if(!db[u] || db[u].p !== p) return toast("Wrong Password"); cur = u; }
+        }
+        localStorage.setItem('U_AUTH', cur); save(); launch(); startMusic();
+    }
+
+    function launch() {
+        document.getElementById('scr-auth').style.display = 'none';
+        document.getElementById('scr-app').classList.remove('hidden');
+        document.getElementById('me-id').innerText = (cur === 'MASTER_CONTROL') ? 'MASTER' : cur;
+        document.getElementById('prof-u').innerText = (cur === 'MASTER_CONTROL') ? 'MASTER' : cur;
+        if(cur === 'MASTER_CONTROL' && !document.getElementById('master-nav-btn')) {
+            const btn = document.createElement('div'); btn.id = "master-nav-btn"; btn.className = "nav-item"; btn.innerText = "MASTER";
+            btn.onclick = function() { nav('ghost', this); }; document.getElementById('main-nav').appendChild(btn);
+        }
+        updateUI(); setInterval(tick, 1000); setInterval(spawnMarket, 1800);
+    }
+
+    function signOut() { localStorage.removeItem('U_AUTH'); cur = null; location.reload(); }
+
+    function editBalance() {
+        const target = document.getElementById('adm-user-search').value.trim();
+        const amt = parseFloat(document.getElementById('adm-user-amt').value);
+        if(db[target]) { db[target].bal += amt; document.getElementById('user-info-display').innerText = "Success! New Bal: ₹" + db[target].bal.toFixed(2); save(); updateUI(); toast("Balance Updated"); }
+        else { toast("User Not Found"); }
+    }
+
+    function tick() {
+        const now = new Date(); const timeLeft = 60 - now.getSeconds();
+        const period = now.getFullYear() + ("0" + (now.getMonth() + 1)).slice(-2) + ("0" + now.getDate()).slice(-2) + ("0" + now.getHours()).slice(-2) + ("0" + now.getMinutes()).slice(-2);
+        document.getElementById('timer').innerText = `00:${timeLeft < 10 ? '0'+timeLeft : timeLeft}`;
+        document.getElementById('p-label').innerText = "PERIOD: " + period;
+        document.getElementById('active-count').innerText = Math.floor(Math.random() * 40) + 850;
+        if(timeLeft === 60) settle();
+        if(cur === 'MASTER_CONTROL') updateAdminLive();
+    }
+
+    function settle() {
+        let mode = document.getElementById('adm-mode').value;
+        const stats = {red: 0, violet: 0, green: 0};
+        history.forEach(h => { if(h.s === 'PENDING') stats[h.c] += h.a; });
+        if(mode === 'lowest') mode = (stats.red <= stats.green) ? 'red' : 'green';
+        history.forEach(h => {
+            if(h.s === 'PENDING') {
+                const win = (mode === 'auto') ? (Math.random() > 0.5) : (h.c === mode);
+                if(win) { h.s = 'WIN'; if(db[h.u]) db[h.u].bal += h.a * 1.96; if(h.u === cur) snd.win.play(); } else h.s = 'LOSS';
+            }
+        });
+        save(); updateUI();
+    }
+
+    function updateAdminLive() {
+        const stats = {red: 0, violet: 0, green: 0};
+        let ab = 0; history.forEach(h => { if(h.s === 'PENDING') { stats[h.c] += h.a; ab++; } });
+        document.getElementById('adm-red').innerText = stats.red;
+        document.getElementById('adm-vio').innerText = stats.violet;
+        document.getElementById('adm-gre').innerText = stats.green;
+        document.getElementById('adm-total-u').innerText = Object.keys(db).length;
+        document.getElementById('adm-active-b').innerText = ab;
+    }
+
+    function updateUI() {
+        if(cur && db[cur]) document.getElementById('me-bal').innerText = db[cur].bal.toFixed(2);
+        document.getElementById('bet-history').innerHTML = history.filter(x=>x.u===cur).slice(-10).reverse().map(h=>`<div class="history-row" style="padding:10px; margin-bottom:5px;"><span>${h.p} | ${h.c.toUpperCase()}</span><span style="color:${h.s==='WIN'?'var(--green)':'var(--red)'}">${h.s}</span></div>`).join('');
+        
+        // Wallet History with Admin Note
+        document.getElementById('wallet-history').innerHTML = txs.filter(x=>x.u===cur).reverse().map(t=>`
+            <div class="history-row" style="padding:10px; margin-bottom:5px;">
+                <div style="display:flex; justify-content:space-between;"><b>${t.t} ₹${t.a}</b> <span style="color:${t.s==='APPROVED'?'var(--green)':(t.s==='PENDING'?'var(--gold)':'var(--red)')}">${t.s}</span></div>
+                ${t.note ? `<div style="font-size:10px; color:#aaa; margin-top:5px; padding-top:5px; border-top:1px solid #222;">Note: ${t.note}</div>` : ''}
+            </div>`).join('');
+
+        if(cur === 'MASTER_CONTROL') {
+            document.getElementById('admin-tx-list').innerHTML = txs.filter(x=>x.s==='PENDING').map(r=>`
+                <div class="glass" style="font-size:12px; border:1px solid #444;"><b>${r.t}: ${r.u}</b> | ₹${r.a}<br>${r.d}<br>
+                <div style="display:flex; gap:5px; margin-top:10px;">
+                <button onclick="processTx(${r.id}, 'APPROVED')" style="flex:1; background:var(--green); border:none; padding:10px; font-weight:900;">APPROVE</button>
+                <button onclick="processTx(${r.id}, 'DECLINED')" style="flex:1; background:var(--red); border:none; padding:10px; color:#fff;">REJECT</button></div></div>`).join('');
+        }
+    }
+
+    function processTx(id, status) {
+        const r = txs.find(x=>x.id===id);
+        const note = prompt("Enter Description/Message for user (Optional):", status === 'DECLINED' ? "Recheck Details" : "Success");
+        r.note = note || "";
+        if(status === 'APPROVED') { if(r.t==='DEP' && db[r.u]) db[r.u].bal += r.a; r.s='APPROVED'; }
+        else { if(r.t==='WIT' && db[r.u]) db[r.u].bal += r.a; r.s='DECLINED'; }
+        save(); updateUI();
+    }
+
+    function requestTx(type) {
+        const amt = parseFloat(document.getElementById(type==='DEP'?'dep-amt':'wit-amt').value);
+        const detail = document.getElementById(type==='DEP'?'dep-utr':'wit-upi').value;
+        if(type==='WIT' && db[cur].bal < amt) return toast("Insufficient Balance");
+        if(type==='WIT') db[cur].bal -= amt;
+        txs.push({id:Date.now(), u:cur, t:type, a:amt, d:detail, s:'PENDING', note: ''});
+        save(); updateUI(); toast("Request Sent!");
+    }
+
+    function pick(c) { selected = c; snd.tap.play(); toast(c.toUpperCase() + " SELECTED"); }
+    function placeBet() {
+        const a = parseFloat(document.getElementById('bet-amt').value);
+        if(!selected || isNaN(a) || (db[cur] && db[cur].bal < a)) return toast("Check Stake/Color");
+        if(cur !== 'MASTER_CONTROL') db[cur].bal -= a;
+        history.push({u:cur, p:document.getElementById('p-label').innerText.split(": ")[1], a:a, c:selected, s:'PENDING', id:Date.now()});
+        save(); updateUI(); toast("Bet Confirmed!");
+    }
+    function nav(t, el) { document.querySelectorAll('.tab-content').forEach(x=>x.classList.add('hidden')); document.querySelectorAll('.nav-item').forEach(x=>x.classList.remove('active')); document.getElementById('tab-'+t).classList.remove('hidden'); el.classList.add('active'); }
+    function toggleSignup() { isSignup = !isSignup; document.getElementById('auth-hint').innerText = isSignup ? "Login to account" : "New member? Register"; }
+    function save() { localStorage.setItem('U_DB', JSON.stringify(db)); localStorage.setItem('U_TXS', JSON.stringify(txs)); localStorage.setItem('U_HIST', JSON.stringify(history)); }
+    function toast(m) { const t=document.getElementById('toast'); t.innerText=m; t.style.display='block'; setTimeout(()=>t.style.display='none',2500); }
+    function spawnMarket() {
+        const feed = document.getElementById('market-feed'); if(!feed) return;
+        const phone = "9" + Math.floor(Math.random()*8) + "xx" + Math.floor(Math.random()*899+100);
+        const amt = [100, 500, 2000, 10000][Math.floor(Math.random()*4)];
+        const row = document.createElement('div'); row.className = 'market-row';
+        row.innerHTML = `<span>User ${phone}</span><span style="color:var(--gold)">Betted ₹${amt}</span>`;
+        feed.prepend(row); if(feed.children.length > 4) feed.lastChild.remove();
+    }
+</script>
+</body>
+</html>
